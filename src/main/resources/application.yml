@@ -1,0 +1,16 @@
+server:
+  port: 8082
+spring:
+  rabbitmq:
+    port: 5672
+    host: localhost
+    username: root
+    password: root
+    virtual-host: count-server
+  datasource:
+    url: jdbc:mysql://localhost:3306/count?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: admin
+    driver-class-name: com.mysql.cj.jdbc.Driver
+mybatis:
+  mapper-locations: classpath:mapper/*.xml

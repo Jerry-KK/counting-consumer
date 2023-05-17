@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.7.11'
+    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+}
+
+group = 'cn.lethekk'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '8'
+
+repositories {
+    // 优先使用国内源
+    maven { url 'https://maven.aliyun.com/repository/public' }
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    //lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    //spring-boot-starter-amqp
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+    //gson
+    implementation 'com.google.code.gson:gson:2.8.2'
+
+    //mybatis-spring-boot-starter
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.3.0'
+
+    //mysql-connector-java
+    implementation 'mysql:mysql-connector-java:8.0.33'
+
+
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
