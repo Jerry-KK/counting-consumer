@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,7 +26,7 @@ import static cn.lethekk.countingconsumer.service.Aggregator.internalQueue;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class DBWriter {
+public class DBWriter implements InitializingBean {
 
     private static Gson gson = new Gson();
     //常量
@@ -44,6 +45,7 @@ public class DBWriter {
             try {
                 write();
             } catch (Exception e) {
+                //todo 异常处理
                 log.error(e.getMessage());
             }
 
@@ -103,5 +105,9 @@ public class DBWriter {
     }
 
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        start();
+    }
 
 }

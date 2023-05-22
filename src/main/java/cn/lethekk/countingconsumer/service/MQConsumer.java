@@ -27,20 +27,19 @@ public class MQConsumer {
     private final RabbitTemplate rabbitTemplate;
     private final Aggregator aggregator;
 
-    private final DBWriter dbWriter;
-
     //todo 线程池管理，消费者端接受消息确认，批量操作
     @PostConstruct
     public void consumer() throws InterruptedException {
         log.info("消费者方法启动！！！ ");
-        new Thread(aggregator::writeToMQ).start();
-        new Thread(dbWriter::start).start();
         while (true) {
             Object msgJson = rabbitTemplate.receiveAndConvert(userRequestQueue);
             if(msgJson != null) {
                 UserRequestMsg msg = new Gson().fromJson((String) msgJson, UserRequestMsg.class);
                 log.info("拉模式接收到消息 ： " + msg.toString());
-                aggregator.accept(msg);
+                boolean accept = aggregator.accept(msg);
+                if(!accept) {
+                    //todo 任务被拒绝，采取重试等措施
+                }
                 //TimeUnit.SECONDS.sleep(5);
             } else {
                 long s = (long)(1000L * Math.random());
