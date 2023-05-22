@@ -7,6 +7,20 @@ spring:
     username: root
     password: root
     virtual-host: count-server
+    publisher-confirm-type: simple
+    publisher-returns: true
+    listener:
+      type: simple
+      simple:
+        # 手动ACK
+        acknowledge-mode: manual
+        # 重试次数超过上面的设置之后是否丢弃（要想将无法消费的消息丢到死信队列，此处必须配置为false）
+        default-requeue-rejected: false
+        retry:
+          # 开启重试机制
+          enabled: true
+          # 重试次数，默认：3次
+          max-attempts: 3
   datasource:
     url: jdbc:mysql://localhost:3306/count?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
     username: root
