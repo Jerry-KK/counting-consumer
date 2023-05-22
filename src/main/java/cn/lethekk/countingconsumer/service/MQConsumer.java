@@ -39,7 +39,6 @@ import static cn.lethekk.countingconsumer.constant.MqConstant.*;
 public class MQConsumer implements InitializingBean {
     private final RabbitTemplate rabbitTemplate;
     private final Aggregator aggregator;
-    private final MessageConverter messageConverter;
 
 
     private ThreadPoolExecutor consumerPool = new ThreadPoolExecutor(4, 4,
@@ -89,7 +88,7 @@ public class MQConsumer implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         log.info("MQConsumer 开始工作！！！");
         for (int i = 0; i < 4; i++) {
-            consumerPool.execute(new Task(rabbitTemplate, aggregator, messageConverter));
+            consumerPool.execute(new Task(rabbitTemplate, aggregator));
         }
         log.info("MQConsumer 完成初始化！！！");
     }
@@ -98,13 +97,11 @@ public class MQConsumer implements InitializingBean {
     static class Task implements Runnable {
         private RabbitTemplate rabbitTemplate;
         private Aggregator aggregator;
-        private MessageConverter messageConverter;
         ObjectMapper objectMapper;
 
-        public Task(RabbitTemplate rabbitTemplate, Aggregator aggregator,MessageConverter messageConverter) {
+        public Task(RabbitTemplate rabbitTemplate, Aggregator aggregator) {
             this.rabbitTemplate = rabbitTemplate;
             this.aggregator = aggregator;
-            this.messageConverter = messageConverter;
 
             objectMapper = new ObjectMapper();
             objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
