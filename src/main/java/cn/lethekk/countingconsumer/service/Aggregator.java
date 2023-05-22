@@ -7,9 +7,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.concurrent.*;
@@ -35,7 +36,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 @Slf4j
 @RequiredArgsConstructor
-@Service
+@Component
 public class Aggregator implements InitializingBean {
 
     //常量
@@ -69,12 +70,22 @@ public class Aggregator implements InitializingBean {
     /**
      * 后台写入任务线程池
      */
-    private ThreadPoolExecutor writePool = (ThreadPoolExecutor) Executors.newSingleThreadExecutor(new ThreadFactory() {
+    private ThreadPoolExecutor writePool = new ThreadPoolExecutor(1, 1,
+            10000, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>(10),
+            new ThreadFactory() {
+                @Override
+                public Thread newThread(Runnable r) {
+                    return new Thread(r, "writePoolThread");
+                }
+            }, new ThreadPoolExecutor.AbortPolicy());
+
+    /*private  static final ThreadPoolExecutor writePool = (ThreadPoolExecutor) Executors.newSingleThreadExecutor(new ThreadFactory() {
         @Override
         public Thread newThread(Runnable r) {
             return new Thread(r, "writePoolThread");
         }
-    });
+    });*/
 
     /**
      * 处理消息存入本地缓存map
@@ -92,7 +103,9 @@ public class Aggregator implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        log.info("Aggregator 开始工作！！！ ");
         initWrite();
+        log.info("Aggregator 完成初始化！！！ ");
     }
 
     public void initWrite() {
@@ -105,7 +118,7 @@ public class Aggregator implements InitializingBean {
     }
 
     private void writeToMQ() {
-        log.info("写入内部MQ方法启动！！！ ");
+//        log.info("写入内部MQ方法启动！！！ ");
         while (true) {
             ConcurrentHashMap<String, AggregatorResult> oldMap = inMemoryMap;
             writeLock.lock();

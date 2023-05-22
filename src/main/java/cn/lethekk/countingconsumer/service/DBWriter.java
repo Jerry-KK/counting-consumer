@@ -16,6 +16,9 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import static cn.lethekk.countingconsumer.service.Aggregator.internalQueue;
@@ -38,19 +41,24 @@ public class DBWriter implements InitializingBean {
     private final VideoPreMinuteRecordMapper mapper;
     private final RabbitTemplate rabbitTemplate;
 
+    private final ExecutorService dbPool = Executors.newSingleThreadExecutor();
+
 
     public void start(){
-        log.info("DBWriter开始工作！！！ ");
-        while (true) {
-            try {
-                write();
-            } catch (Exception e) {
-                //todo 异常处理
-                log.error(e.getMessage());
+        dbPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        write();
+                    } catch (Exception e) {
+                        //todo 异常处理
+                        log.error(e.getMessage());
+                    }
+
+                }
             }
-
-        }
-
+        });
     }
 
 
@@ -107,7 +115,9 @@ public class DBWriter implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        log.info("DBWriter 开始工作！！！ ");
         start();
+        log.info("DBWriter 完成初始化！！！ ");
     }
 
 }

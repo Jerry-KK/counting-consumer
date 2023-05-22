@@ -1,8 +1,6 @@
 package cn.lethekk.countingconsumer.entity;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -10,6 +8,8 @@ import java.time.LocalDateTime;
  * @author lethe
  * @date 2023/5/15 22:19
  */
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Builder
 @ToString
